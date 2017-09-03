@@ -94,6 +94,7 @@
 ;;
 ;;
 (defun helm-addressbook--search-mail (pattern)
+  "Search function to search PATTERN for helm-addressbook."
   (helm-awhile (next-single-property-change (point) 'email)
     (goto-char it)
     (end-of-line)
@@ -105,6 +106,7 @@
        (+ (point) (match-end 0))))))
 
 (defun helm-addressbook--search-group (pattern)
+  "Search function to search PATTERN for helm-addressbook."
   (helm-awhile (next-single-property-change (point) 'group)
     (goto-char it)
     (end-of-line)
@@ -145,9 +147,14 @@
    (filtered-candidate-transformer :initform
                                    '(helm-adaptive-sort
                                      helm-highlight-bookmark))
-   (action :initform 'helm-addressbook-actions)))
+   (action :initform 'helm-addressbook-actions))
+
+  "Helm class to build helm-addressbook source.")
 
 (defun helm-addressbook-send-mail-1 (_candidate &optional cc)
+  "Generic action to send mail from helm-addressbook.
+Argument _CANDIDATE is unused and argument CC can be one of `cc' or
+`bcc'."
   (let* ((contacts (helm-marked-candidates))
          (bookmark      (helm-bookmark-get-bookmark-from-name
                          (car contacts)))
@@ -163,7 +170,8 @@
   (helm-bookmark-filter-setup-alist 'helm-bookmark-addressbook-p))
 
 (defvar helm-source-addressbook
-  (helm-make-source "Bookmark Addressbook" 'helm-addressbook-class))
+  (helm-make-source "Bookmark Addressbook" 'helm-addressbook-class)
+  "Main source for helm-addressbook.")
 
 (defvar helm-source-addressbook-set
   (helm-build-dummy-source "Addressbook add contact"
@@ -173,7 +181,8 @@
                      helm-pattern)
                 "Enter a contact name to record")))
     :action (lambda (candidate)
-              (addressbook-bookmark-set-1 candidate))))
+              (addressbook-bookmark-set-1 candidate)))
+  "Source to add contacts from helm-addressbook.")
 
 ;;;###autoload
 (defun helm-addressbook-bookmarks ()
