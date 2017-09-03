@@ -19,8 +19,8 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;;; Commentary: Needs
-;;  https://github.com/thierryvolpiatto/addressbook-bookmark as dependency.
+;;; Commentary:
+;; Needs https://github.com/thierryvolpiatto/addressbook-bookmark as dependency.
 
 ;;; Code:
 (require 'cl-lib)
@@ -33,7 +33,7 @@
                   (&optional bookmark-name append cc))
 (declare-function addressbook-bookmark-set-1 "ext:addressbook-bookmark.el" (&optional contact))
 
-(defcustom helm-bookmark-addressbook-actions
+(defcustom helm-addressbook-actions
   '(("Show Contact(s)"
      . (lambda (candidate)
          (let* ((contacts (helm-marked-candidates))
@@ -45,11 +45,11 @@
                  (cl-loop for bmk in it do
                           (bookmark-jump
                            (helm-bookmark-get-bookmark-from-name bmk))))))))
-    ("Mail To" . helm-bookmark-addressbook-send-mail-1)
+    ("Mail To" . helm-addressbook-send-mail-1)
     ("Mail Cc" . (lambda (_candidate)
-                   (helm-bookmark-addressbook-send-mail-1 nil 'cc)))
+                   (helm-addressbook-send-mail-1 nil 'cc)))
     ("Mail Bcc" . (lambda (_candidate)
-                    (helm-bookmark-addressbook-send-mail-1 nil 'bcc)))
+                    (helm-addressbook-send-mail-1 nil 'bcc)))
     ("Edit Bookmark"
      . (lambda (candidate)
          (let ((bmk (helm-bookmark-get-bookmark-from-name
@@ -93,7 +93,7 @@
 ;;; Addressbook.
 ;;
 ;;
-(defun helm-bookmark--addressbook-search-mail (pattern)
+(defun helm-addressbook--search-mail (pattern)
   (helm-awhile (next-single-property-change (point) 'email)
     (goto-char it)
     (end-of-line)
@@ -104,7 +104,7 @@
       (cl-return
        (+ (point) (match-end 0))))))
 
-(defun helm-bookmark--addressbook-search-group (pattern)
+(defun helm-addressbook--search-group (pattern)
   (helm-awhile (next-single-property-change (point) 'group)
     (goto-char it)
     (end-of-line)
@@ -115,18 +115,18 @@
       (cl-return
        (+ (point) (match-end 0))))))
 
-(defclass helm-bookmark-addressbook-class (helm-source-in-buffer)
+(defclass helm-addressbook-class (helm-source-in-buffer)
   ((init :initform (lambda ()
                      (require 'addressbook-bookmark)
                      (bookmark-maybe-load-default-file)
                      (helm-init-candidates-in-buffer
                          'global
-                       (cl-loop for b in (helm-bookmark-addressbook-setup-alist)
+                       (cl-loop for b in (helm-addressbook-setup-alist)
                                 collect (propertize b
                                                     'email (bookmark-prop-get b 'email)
                                                     'group (bookmark-prop-get b 'group))))))
-   (search :initform '(helm-bookmark--addressbook-search-group
-                       helm-bookmark--addressbook-search-mail))
+   (search :initform '(helm-addressbook--search-group
+                       helm-addressbook--search-mail))
    (persistent-action :initform
                       (lambda (candidate)
                         (let ((bmk (helm-bookmark-get-bookmark-from-name
@@ -145,9 +145,9 @@
    (filtered-candidate-transformer :initform
                                    '(helm-adaptive-sort
                                      helm-highlight-bookmark))
-   (action :initform 'helm-bookmark-addressbook-actions)))
+   (action :initform 'helm-addressbook-actions)))
 
-(defun helm-bookmark-addressbook-send-mail-1 (_candidate &optional cc)
+(defun helm-addressbook-send-mail-1 (_candidate &optional cc)
   (let* ((contacts (helm-marked-candidates))
          (bookmark      (helm-bookmark-get-bookmark-from-name
                          (car contacts)))
@@ -158,12 +158,12 @@
                  (addressbook-set-mail-buffer-1
                   (helm-bookmark-get-bookmark-from-name bmk) 'append cc)))))
 
-(defun helm-bookmark-addressbook-setup-alist ()
+(defun helm-addressbook-setup-alist ()
   "Specialized filter function for addressbook bookmarks."
   (helm-bookmark-filter-setup-alist 'helm-bookmark-addressbook-p))
 
-(defvar helm-source-bookmark-addressbook
-  (helm-make-source "Bookmark Addressbook" 'helm-bookmark-addressbook-class))
+(defvar helm-source-addressbook
+  (helm-make-source "Bookmark Addressbook" 'helm-addressbook-class))
 
 (defvar helm-source-addressbook-set
   (helm-build-dummy-source "Addressbook add contact"
@@ -180,7 +180,7 @@
   "Preconfigured helm for addressbook bookmarks.
 Need addressbook-bookmark package as dependencie."
   (interactive)
-  (helm :sources '(helm-source-bookmark-addressbook
+  (helm :sources '(helm-source-addressbook
                    helm-source-addressbook-set)
         :prompt "Search Contact: "
         :buffer "*helm addressbook*"
