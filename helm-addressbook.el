@@ -101,7 +101,7 @@
     (when (string-match pattern
                         (get-text-property
                          0 'email (buffer-substring
-                                   (point-at-bol) (point-at-eol))))
+                                   (pos-bol) (pos-eol))))
       (cl-return
        (+ (point) (match-end 0))))))
 
@@ -113,7 +113,7 @@
     (when (string-match pattern
                         (get-text-property
                          0 'group (buffer-substring
-                                   (point-at-bol) (point-at-eol))))
+                                   (pos-bol) (pos-eol))))
       (cl-return
        (+ (point) (match-end 0))))))
 
