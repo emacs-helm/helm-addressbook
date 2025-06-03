@@ -118,30 +118,31 @@
        (+ (point) (match-end 0))))))
 
 (defclass helm-addressbook-class (helm-source-in-buffer)
-  ((init :initform (lambda ()
-                     (require 'addressbook-bookmark)
-                     (bookmark-maybe-load-default-file)
-                     (helm-init-candidates-in-buffer
-                         'global
-                       (cl-loop for b in (helm-addressbook-setup-alist)
-                                collect (propertize b
-                                                    'email (bookmark-prop-get b 'email)
-                                                    'group (bookmark-prop-get b 'group))))))
+  ((init
+    :initform
+    (lambda ()
+      (require 'addressbook-bookmark)
+      (bookmark-maybe-load-default-file)
+      (helm-init-candidates-in-buffer
+          'global
+        (cl-loop for b in (helm-addressbook-setup-alist)
+                 collect (propertize b
+                                     'email (bookmark-prop-get b 'email)
+                                     'group (bookmark-prop-get b 'group))))))
    (search :initform '(helm-addressbook--search-group
                        helm-addressbook--search-mail))
-   (persistent-action :initform
-                      (lambda (candidate)
-                        (let ((bmk (helm-bookmark-get-bookmark-from-name
-                                    candidate)))
-                          (if (and (get-buffer-window addressbook-buffer-name 'visible)
-                                   (string= bmk (with-current-buffer addressbook-buffer-name
-                                                  (save-excursion
-                                                    (search-forward "^Name: " nil t)
-                                                    (car (addressbook-get-contact-data))))))
-                              (kill-buffer addressbook-buffer-name)
-                              (when (buffer-live-p (get-buffer addressbook-buffer-name))
-                                (kill-buffer addressbook-buffer-name))
-                              (bookmark--jump-via bmk 'switch-to-buffer)))))
+   (persistent-action
+    :initform
+    (lambda (candidate)
+      (let ((bmk (helm-bookmark-get-bookmark-from-name candidate))
+            name)
+        (if (and (get-buffer-window addressbook-buffer-name 'visible)
+                 (string= bmk (with-current-buffer addressbook-buffer-name
+                                (save-excursion
+                                  (search-forward "^Name: " nil t)
+                                  (setq name (car (addressbook-get-contact-data)))))))
+            (user-error "Bookmark %s already displayed" name)
+          (bookmark-jump bmk 'switch-to-buffer)))))
    (persistent-help :initform "Show contact - Prefix with C-u to append")
    (mode-line :initform (list "Contact(s)" helm-mode-line-string))
    (filtered-candidate-transformer :initform
