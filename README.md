@@ -2,10 +2,6 @@
 
 Helm interface to [addressbook-bookmark](https://github.com/thierryvolpiatto/addressbook-bookmark)
 
-# Install from Melpa
-
-All you need to do is M-x package-install helm-addressbook
-
 # Install from sources
 
 ## Dependencies
